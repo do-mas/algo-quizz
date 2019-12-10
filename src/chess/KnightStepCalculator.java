@@ -1,92 +1,59 @@
+package chess;
+
 import java.util.*;
 
-// Java program to find minimum steps to reach to
-// specific CellWithDistance in minimum moves by Knight
-class StepsCalculator {
+class KnightStepCalculator {
 
-    // Class for storing a CellWithDistance's data
+    // knight possible moves
+    private static int[] dx = {-2, -1, 1, 2, -2, -1, 1, 2};
+    private static int[] dy = {-1, -2, -2, -1, 1, 2, 2, 1};
 
-
-    // Utility method returns true if (x, y) lies
-// inside Board
-    private static boolean isInsideBoard(int x, int y) {
-        if (x >= 0 && y >= 0) {
-            return true;
-        }
-        return false;
-    }
-
-    // Method returns minimum step
-// to reach target position
-    static int minStepToReachTarget(int knightPos[],
-                                    int targetPosition[]) {
-
-
-        // x and y direction, where a knight can move
-        int dx[] = {-2, -1, 1, 2, -2, -1, 1, 2};
-        int dy[] = {-1, -2, -2, -1, 1, 2, 2, 1};
+    static int minStepToReachTarget(int[] knightPos, int[] targetPosition) {
 
         int targetX = targetPosition[0];
         int targetY = targetPosition[1];
-        // queue for storing states of knight in board
-        Vector<CellWithDistance> queueToVisit = new Vector<>();
 
-        // push starting position of knight with 0 distance
-        queueToVisit.add(new CellWithDistance(knightPos[0], knightPos[1], 0));
+        Set<Position> queuedPositions = new HashSet<>();
+        Queue<Position> queueToVisit = new LinkedList<>();
 
-        CellWithDistance currPos;
-        int x, y;
+        Position initialPosition = new Position(knightPos[0], knightPos[1], 0);
+        queueToVisit.add(initialPosition);
 
-        Set<CellWithDistance> takenPossitions = new HashSet<>();
-
-        // loop untill we have one element in queue
         int visits = 0;
         while (!queueToVisit.isEmpty()) {
             visits = visits + 1;
 
-            currPos = takeOutTheFirstPosition(queueToVisit);
-
-//            System.out.println("visiting ->" + currPos.x + ":" + currPos.y);
-
-            if (isTheDestination(targetPosition, currPos)) {
-//                System.out.println("total taken positions ->" + takenPossitions.size());
-//                System.out.println("total visits ->" + takenPossitions.size());
-                return currPos.dis;
-            }
+            Position currPos = queueToVisit.poll();
 
             for (int i = 0; i < 8; i++) {
-                x = currPos.x + dx[i];
-                y = currPos.y + dy[i];
 
-//                System.out.println("possible-position ->" + x + ":" + y);
+                int x = currPos.x + dx[i];
+                int y = currPos.y + dy[i];
 
-                if (isInsideBoard(x, y)) {
-
-                    if (targetX + 6  < x || targetY + 6 < y){
-                        continue;
-                    }
-
-                    CellWithDistance cell = new CellWithDistance(x, y, currPos.dis + 1);
-
-                    if (isTheDestination(targetPosition, cell)) {
-                        System.out.println("total taken positions ->" + takenPossitions.size());
-                        System.out.println("total visits ->" + takenPossitions.size());
-                        return cell.dis;
-                    }
-
-
-                        if (takenPossitions.add(cell)) {
-                            queueToVisit.add(cell);
-                        }
-//                        System.out.println("selecting for visit->" + x + ":" + y + "dis" + (currPos.dis + 1));
-
+                if ((x < 0) && (y < 0)) {
+                    continue;
                 }
+                if (targetX + 6 < x || targetY + 6 < y) {
+                    continue;
+                }
+
+                Position newPosition = new Position(x, y, currPos.dis + 1);
+                if (isTheDestination(targetPosition, newPosition)) {
+                    System.out.println("total taken positions ->" + queuedPositions.size());
+                    System.out.println("total visits ->" + visits);
+                    return newPosition.dis;
+                }
+
+                if (queuedPositions.add(newPosition)) {
+                    queueToVisit.add(newPosition);
+                }
+
             }
         }
-        return 0;
+        return -1;
     }
 
-    private static boolean isTheDestination(int[] targetPos, CellWithDistance t) {
+    private static boolean isTheDestination(int[] targetPos, Position t) {
         if (t.x == targetPos[0] && t.y == targetPos[1]) {
             System.out.println(" -- found -- ->" + t.x + ":" + t.y);
             return true;
@@ -94,20 +61,13 @@ class StepsCalculator {
         return false;
     }
 
-    private static CellWithDistance takeOutTheFirstPosition(Vector<CellWithDistance> knightStates) {
-        CellWithDistance t;
-        t = knightStates.firstElement();
-        knightStates.remove(0);
-        return t;
-    }
-
 }
 
-class CellWithDistance {
+class Position {
     int x, y;
     int dis;
 
-    public CellWithDistance(int x, int y, int dis) {
+    Position(int x, int y, int dis) {
         this.x = x;
         this.y = y;
         this.dis = dis;
@@ -117,9 +77,8 @@ class CellWithDistance {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CellWithDistance that = (CellWithDistance) o;
-        return x == that.x &&
-                y == that.y;
+        Position that = (Position) o;
+        return x == that.x && y == that.y;
     }
 
     @Override
