@@ -10,32 +10,34 @@ public class BookMain {
         int[] i = {1, 2, 3};
 //        i = new int[]{1, 2, 3, 3, 3};
 //        i = new int[]{1, 2, 3, 1, 1, 1, 1};
-        i = new int[]{1, 2, 3, 9, 9, 9, 9, 1};
-        int rez = calculateMaxSequence(i, 3);
+        i = new int[]{1, 1, 3, 4, 3, 3, 4};
+        i = new int[]{4, 5, 5, 4, 2, 2, 4};
+        int rez = calculateMaxSequence(i, 0);
         System.out.println(rez);
     }
 
     static int calculateMaxSequence(int[] books, int K) {
 
         // all distinct, all the same
-        long distinctNoCount = Arrays.stream(books).distinct().count();
-        if (distinctNoCount == books.length) {
-            int sequenceCount = K + 1;
-            if (sequenceCount < books.length) {
-                return sequenceCount;
-            } else {
-                return books.length;
-            }
-        }
-        if (distinctNoCount == 1) {
-            return books.length;
-        }
+//        long distinctNoCount = Arrays.stream(books).parallel().distinct().count();
+//        if (distinctNoCount == books.length) {
+//            int sequenceCount = K + 1;
+//            if (sequenceCount < books.length) {
+//                return sequenceCount;
+//            } else {
+//                return books.length;
+//            }
+//        }
+//        if (distinctNoCount == 1) {
+//            return books.length;
+//        }
 
         // K the size or array
         if (K == books.length) {
             return books.length;
         }
 
+//        int[] indexesToSkip = new int[]{};
         int[] indexesToSkip = new int[books.length];
 
         int maxRez = 0;
@@ -51,9 +53,12 @@ public class BookMain {
             if (max > maxRez) {
                 maxRez = max;
             }
+            if (max == books.length) {
+                break;
+            }
 
-            int h = skip(books, i);
-            i = i + h;
+//            int h = getTheSameNumberCount(books, i);
+            i = i + 1;
 
         }
 
@@ -61,7 +66,7 @@ public class BookMain {
 
     }
 
-    static int skip(int[] book, int inx) {
+    static int getTheSameNumberCount(int[] book, int inx) {
 
         int skip = 1;
 
@@ -89,23 +94,24 @@ public class BookMain {
 
             if (numberUnderIndex == currNumber) {
                 max = max + 1;
-
                 indexesToSkip[i] = i;
-
             } else {
-
                 if (K > 0) {
                     max = max + 1;
                     K = K - 1;
                 } else {
                     break;
                 }
-
             }
 
-            numberUnderIndex = currNumber;
+//            numberUnderIndex = currNumber;
 
         }
+
+        if (K == 0) {
+            return max;
+        }
+
 
         // add to max from left if there is anything
         int firsItemForReverse;
@@ -126,7 +132,8 @@ public class BookMain {
                     max = max + 1;
                     K = K - 1;
                 } else {
-                    break;
+                    return max;
+//                    break;
                 }
             }
         }
